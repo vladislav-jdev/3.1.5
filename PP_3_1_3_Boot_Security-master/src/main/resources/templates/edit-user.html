@@ -1,0 +1,60 @@
+<taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"/>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>New User</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body style="padding: 50px">
+<h3>Update user info:</h3><br>
+<div class="input-group mb-3">
+  <form th:action="@{/admin/update-user}" th:object="${editUser}" method="post">
+    <input readonly type="hidden" th:field="*{id}">
+    <label for="name">First name</label>
+    <input class="form-control" type="text" th:field="*{name}" id="name" placeholder="First Name">
+    <br/>
+    <label for="lastName">Last name</label>
+    <input class="form-control" type="text" th:field="*{lastname}" id="lastName" placeholder="Last Name">
+    <br/>
+    <label for="age">Age</label>
+    <input class="form-control" type="number" th:field="*{age}" id="age" placeholder="Age">
+    <br/>
+    <label for="login">Login</label>
+    <input class="form-control" type="text" th:field="*{username}" id="login" placeholder="Your login name">
+    <br/>
+    <label for="pass">Password</label>
+    <input class="form-control" type="password" th:field="*{password}" id="pass" placeholder="Your password">
+    <br/>
+    <table class="table-success table-bordered" >
+      <thead class="thead-dark">
+      <tr>
+        <th>Current roles:</th>
+      </tr>
+      </thead>
+      <tbody>
+        <td th:text="${editUser.roles}"></td>
+      </tr>
+      </tbody>
+    </table>
+    <br/>
+    <label>Edit roles:</label>
+    <br/>
+    <ul>
+      <li th:each="role : ${roleList}">
+        <div class="form-check">
+          <input id="roles" class="form-check-input" type="checkbox" th:field="*{roles}" th:value="${role.id}">
+          <label class="form-check-label" for="roles" th:text="${role.name}"></label>
+        </div>
+      </li>
+    </ul>
+<!--    <label th:text="*{roles}"></label><br/>-->
+    <input class="btn btn-success" type="submit" value="Save">
+  </form>
+</div>
+</body>
+</html>
