@@ -1,6 +1,9 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +11,8 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
 import java.util.List;
 
@@ -24,9 +29,19 @@ public class UserController {
 
 
     @RequestMapping(value = "/admin")
-    public String printUsers(Model model){
+    public String printUsers(@ModelAttribute("newUser") User user, Principal principal,Model model){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentRoles = auth.getName();
         List<User> userList  = userService.getAllUsers();
         model.addAttribute("userList", userList);
+        List<Role> roleList = roleService.getAllRoles();
+        model.addAttribute("newUser", user);
+        model.addAttribute("roleList", roleList);
+        User findUserByName = userService.findByUsername(principal.getName());
+        model.addAttribute("findUserByName", findUserByName);
+        List<Role> userRoles = findUserByName.getRoles();
+        model.addAttribute("userRoles", userRoles);
+        model.addAttribute("currentRoles", currentRoles);
         return "admin";
     }
 
@@ -54,8 +69,8 @@ public class UserController {
     @GetMapping(value = "/admin/edit-user/{id}")
     public String editUser(@PathVariable("id") Long id, Model model){
         User user = userService.getUser(id);
-        List<Role> roleList = roleService.getAllRoles();
         model.addAttribute("editUser", user);
+        List<Role> roleList = roleService.getAllRoles();
         model.addAttribute("roleList", roleList);
         return "edit-user";
     }
@@ -72,6 +87,9 @@ public class UserController {
         List<Role> userRoles = user.getRoles();
         model.addAttribute("user", user);
         model.addAttribute("userRoles", userRoles);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentRoles = auth.getName();
+        model.addAttribute("currentRoles", currentRoles);
         return "user";
     }
 
@@ -84,14 +102,22 @@ public class UserController {
         return "user";
     }
 
-    @RequestMapping("/logout")
-    public String logOut() {
-        return "redirect:/login";
-    }
-
     @RequestMapping("/page403")
     public String showErrorPage() {
         return "page403";
     }
+
+    @GetMapping("/login")
+    public String login() {return "login";}
+
+    @RequestMapping(value="/logout", method = RequestMethod.GET)
+    public String customLogout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null){
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
+        return "redirect:/login";
+    }
+
 
 }
