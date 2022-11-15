@@ -27,18 +27,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
 
                 .authorizeRequests()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/", "login").permitAll()
                 .antMatchers("/user").hasAnyRole("USER", "ADMIN")
+                .antMatchers("/admin/user").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/user/**").hasRole("ADMIN")
+                .antMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().successHandler(successUserHandler)
                 .permitAll()
                 .and()
+                .csrf().disable()
                 .logout().logoutUrl("/logout")
                 .permitAll()
-                .and().exceptionHandling().accessDeniedPage("/page403")
                 .and().formLogin(form -> form
                         .loginPage("/login")
                         .permitAll()
